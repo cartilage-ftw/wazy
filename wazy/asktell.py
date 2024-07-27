@@ -124,7 +124,7 @@ class BOAlgorithm:
         if aq_fxn is None:
             aq_fxn = self.aconfig.bo_aq_fxn
         if aq_fxn == "ucb":
-            aq = neg_bayesian_ucb
+            aq = neg_bayesian_ucb(beta=self.aconfig.bo_ucb_beta)
         elif aq_fxn == "ei":
             aq = neg_bayesian_ei
             if self.aconfig.bo_xi > 1:
@@ -203,7 +203,7 @@ class BOAlgorithm:
         if aq_fxn is None:
             aq_fxn = self.aconfig.bo_aq_fxn
         if aq_fxn == "ucb":
-            aq = neg_bayesian_ucb
+            aq = neg_bayesian_ucb(beta=self.aconfig.bo_ucb_beta)
         elif aq_fxn == "ei":
             aq = neg_bayesian_ei
         self._maybe_train(key)
