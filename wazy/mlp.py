@@ -43,6 +43,7 @@ class AlgConfig:
     bo_xi: float = 0.2
     bo_batch_size: int = 16
     bo_aq_fxn: str = "ucb"
+    bo_ucb_beta: float = 2.0 # the beta or lambda parameter in UCB that adjusts "exploration" vs "exploitation"
     bo_varlength: bool = False
     global_norm: float = 1
 
@@ -279,6 +280,7 @@ def ensemble_train(
     dual: bool = True,
     train_step: Callable = None,
 ) -> Tuple[hk.Params, jnp.ndarray]:
+    
     step = setup_ensemble_train(forward_t, mconfig, aconfig, dual)
     return exec_ensemble_train(
         key, forward_t, mconfig, seqs, labels, params, aconfig, step
