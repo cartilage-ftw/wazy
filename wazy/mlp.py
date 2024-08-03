@@ -313,6 +313,7 @@ def neg_bayesian_ucb(
     mu = joint_out[0]
     std = jnp.sqrt(joint_out[1])
     ucb = mu + beta * std
+    print("The value of beta actually being used", beta)
     return -ucb
 
 
@@ -335,15 +336,21 @@ def setup_bayes_opt(f, cost_fxn=neg_bayesian_ucb, aconfig: AlgConfig = None):
 
     # reduce it so we can take grad
     reduced_cost_fxn = lambda *args: jnp.mean(cost_fxn(*args))
-
+    
+    # the tunable parameter passed is beta for UCB, and xi for EI
+    aq_fxn_param = None
+    if cost_fxn == neg_bayesian_ucb:
+        aq_fxn_param = aconfig.bo_ucb_beta
+    else:
+        aq_fxn_param = aconfig.bo_xi
     @jax.jit
     def step(x, opt_state, key, best):
         # reduced
-        g = jax.grad(reduced_cost_fxn, 2)(key, f, x, best, aconfig.bo_xi)
+        g = jax.grad(reduced_cost_fxn, 2)(key, f, x, best, aq_fxn_param)
         updates, opt_state = optimizer.update(g, opt_state)
         x = optax.apply_updates(x, updates)
         # non-reduced
-        loss = cost_fxn(key, f, x, best, aconfig.bo_xi)
+        loss = cost_fxn(key, f, x, best, aq_fxn_param)
         return x, opt_state, loss
 
     return step
